@@ -103,3 +103,13 @@
 2. 定位到当前工程下package出来的包，使用`sftp`上传到指定服务器的指定目录下
 3. 一次运行后置命令，所有命令都在`remotePath`目录下执行，如果有一个命令运行失败，package结束
 4. package成功结束
+
+
+
+注意：
+
+执行命令前会加载环境变量，确保你的环境变量是配置在以下的几个文件中
+
+```shell
+source /etc/environment; source /etc/profile; source ~/.bashrc; source ~/.profile
+```

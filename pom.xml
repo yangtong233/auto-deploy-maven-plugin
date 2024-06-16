@@ -65,7 +65,7 @@
                 <configuration>
                     <publishingServerId>central</publishingServerId>
                     <tokenAuth>true</tokenAuth>
-                    <autoPublish>false</autoPublish>
+                    <autoPublish>true</autoPublish>
                 </configuration>
             </plugin>
 
@@ -117,6 +117,7 @@
         </plugins>
     </build>
 
+    <!--开源协议-->
     <licenses>
         <license>
             <name>The Apache License, Version 2.0</name>
@@ -124,6 +125,7 @@
         </license>
     </licenses>
 
+    <!--开发者-->
     <developers>
         <developer>
             <name>yangtong</name>
