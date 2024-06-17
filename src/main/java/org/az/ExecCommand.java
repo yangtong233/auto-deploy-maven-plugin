@@ -26,7 +26,8 @@ public class ExecCommand {
      * 构造函数
      *
      * @param session 一次linux会话
-     * @param command 命令
+     * @param firstCommand 第一个命令，一般是进入指定目录
+     * @param command 后续命令
      */
     public ExecCommand(Session session, String firstCommand, String command) {
         this.command = command;
