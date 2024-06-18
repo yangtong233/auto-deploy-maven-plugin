@@ -12,9 +12,6 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 
 import java.io.File;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * created by yangtong on 2024/6/15 11:30:39
@@ -22,6 +19,10 @@ import java.util.stream.Collectors;
 @Mojo(name = "auto-deploy", defaultPhase = LifecyclePhase.PACKAGE)
 public class AutoDeployMojo extends AbstractMojo {
 
+    /**
+     * 命令分隔符
+     */
+    private final static String SEPARATOR = ";";
 
     @Parameter(defaultValue = "${project}")
     private MavenProject project;
@@ -79,17 +80,7 @@ public class AutoDeployMojo extends AbstractMojo {
         //执行具体操作
         server.doConnect(
                 //前置命令
-                session -> {
-                    if (beforeCommands != null) {
-                        //执行命令
-                        for (String command : beforeCommands) {
-                            if (new ExecCommand(session, "cd " + remotePath, command).doCommand() != 0) {
-                                throw new ExecFailException();
-                            }
-                            System.out.println();
-                        }
-                    }
-                },
+                parseCommand(beforeCommands),
                 //上传
                 session -> {
                     //上传程序包
@@ -98,7 +89,7 @@ public class AutoDeployMojo extends AbstractMojo {
                         ChannelSftp sftpChannel = (ChannelSftp) session.openChannel("sftp");
                         sftpChannel.connect();
 
-                        sftpChannel.put(jarPackagePath, remoteFile, new ConsoleProgressMonitor(log));
+                        sftpChannel.put(jarPackagePath, remoteFile, new ConsoleProgressMonitor());
                         //上传完成后关闭sftp channel
                         sftpChannel.disconnect();
                     } catch (JSchException | SftpException e) {
@@ -106,16 +97,7 @@ public class AutoDeployMojo extends AbstractMojo {
                     }
                 },
                 //后置命令
-                session -> {
-                    if (afterCommands != null) {
-                        for (String command : afterCommands) {
-                            if (new ExecCommand(session, "cd " + remotePath, command).doCommand() != 0) {
-                                throw new ExecFailException();
-                            }
-                            System.out.println();
-                        }
-                    }
-                },
+                parseCommand(afterCommands),
                 //收尾命令
                 session -> log.info("自动部署成功，即将退出登录...")
         );
@@ -146,5 +128,30 @@ public class AutoDeployMojo extends AbstractMojo {
         String finalName = build.getFinalName();
 
         return remotePath + finalName + "." + packaging;
+    }
+
+    /**
+     * 解析命令数组，并返回SessionTask对象
+     * 对于每条命令，可能包含多个子命令，子命令之间用分号分隔
+     *
+     * @param commandArr 命令数组
+     * @return SessionTask对象
+     */
+    private SessionTask parseCommand(String[] commandArr) {
+        return session -> {
+            if (commandArr != null) {
+                for (String commands : commandArr) {
+                    //可能commands是以分号分隔的多个命令，需要把所有命令拆分出来依次执行
+                    if (commands != null) {
+                        for (String command : commands.split(SEPARATOR)) {
+                            if (new ExecCommand(session, "cd " + remotePath, command).doCommand() != 0) {
+                                throw new ExecFailException();
+                            }
+                            System.out.println();
+                        }
+                    }
+                }
+            }
+        };
     }
 }

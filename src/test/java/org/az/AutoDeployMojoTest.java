@@ -52,7 +52,7 @@ public class AutoDeployMojoTest {
                         ChannelSftp sftpChannel = (ChannelSftp) session.openChannel("sftp");
                         sftpChannel.connect();
 
-                        sftpChannel.put(jarPackagePath, remoteFile, new ConsoleProgressMonitor(log));
+                        sftpChannel.put(jarPackagePath, remoteFile, new ConsoleProgressMonitor());
                         sftpChannel.disconnect();
                     } catch (JSchException | SftpException e) {
                         throw new RuntimeException(e);

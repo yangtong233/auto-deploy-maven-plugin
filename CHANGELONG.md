@@ -1,4 +1,10 @@
-# Maven的自动部署插件
+# 自动部署插件更新日期
+
+## 1.x版本
+
+### 1.0
+
+第一个发行的正式版本，可以实现普通程序包的上传与部署，使用如下
 
 🌽通过配置，可以在mvn package时自动将打好的包上传至指定服务器，并在上传前后执行一些脚本命令，基于此实现自动上传部署
 
@@ -97,16 +103,6 @@
 
 
 
-并且支持一个command标签包含多个shell命令，命令间以分号`;`分隔，比如上面的前置命令就可以写成如下形式
-
-```xml
-<beforeCommands>
-	<command>ps -ef|grep redis;./run.sh stop</command>
-</beforeCommands>
-```
-
-
-
 🍊运行`mvn clean package`命令，会自动运行插件，步骤如下
 
 1. 依次运行前置命令，所有命令都在`remotePath`目录下执行，如果有一个命令运行失败，package结束
@@ -123,3 +119,30 @@
 ```shell
 source /etc/environment; source /etc/profile; source ~/.bashrc; source ~/.profile
 ```
+
+
+
+### 1.1
+
+增加如下功能：
+
+* 优化文件上传时的进度条显示，以及增加上传速率
+* command命令间可以增加分号`;`，插件会将以分号分隔的命令解析成多条命令依次执行
+
+这里介绍下command标签里的命令如何使用分号分隔，使用如下
+
+```xml
+<beforeCommands>
+	<command>ps -ef|grep redis;./run.sh stop;</command>
+</beforeCommands>
+```
+
+这等价于之前的
+
+```xml
+<beforeCommands>
+	<command>ps -ef|grep redis</command>
+	<command>./run.sh stop</command>
+</beforeCommands>
+```
+
