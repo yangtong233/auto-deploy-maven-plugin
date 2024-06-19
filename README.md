@@ -107,12 +107,14 @@
 
 
 
-🍊运行`mvn clean package`命令，会自动运行插件，步骤如下
+🍊运行`mvn clean package -P auto-deploy`命令，会自动运行插件，步骤如下
 
 1. 依次运行前置命令，所有命令都在`remotePath`目录下执行，如果有一个命令运行失败，package结束
 2. 定位到当前工程下package出来的包，使用`sftp`上传到指定服务器的指定目录下
 3. 一次运行后置命令，所有命令都在`remotePath`目录下执行，如果有一个命令运行失败，package结束
 4. package成功结束
+
+package时，profiles必须包含`auto-deploy`，否则该插件不会被运行，这是为了使用者可以自主选择是否使用该插件的自动部署行为
 
 
 

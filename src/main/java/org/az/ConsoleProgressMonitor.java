@@ -1,7 +1,6 @@
 package org.az;
 
 import com.jcraft.jsch.SftpProgressMonitor;
-import org.apache.maven.plugin.logging.Log;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -23,7 +22,7 @@ public class ConsoleProgressMonitor implements SftpProgressMonitor {
     //过去一秒累计上传的字节数，方便计算上传速率
     private long bytesPerSecond;
 
-    private StringBuilder rate;
+    private StringBuilder rate = new StringBuilder("  -/s");
 
     /**
      * 进行sftp操作的初始化方法，并打印初始化信息
@@ -68,7 +67,7 @@ public class ConsoleProgressMonitor implements SftpProgressMonitor {
         //计算上传速率
         if (elapsedTime >= 1000 || transferred == total) {
             rate = new StringBuilder()
-                    .append("  速率: ")
+                    .append("  ")
                     .append(formatSize(bytesPerSecond / elapsedTime * 1000))
                     .append("/s");
             elapsedTime = 0;
@@ -76,9 +75,11 @@ public class ConsoleProgressMonitor implements SftpProgressMonitor {
         }
 
         //覆盖之前的进度条，让进度条始终在一行显示
-        bar.append("]   ").append(progress).append("%  ")
-                .append(formatSize(transferred)).append("/").append(formatSize(total))
-                .append(rate == null ? "" : rate);
+        bar.append("]  ").append(progress).append("%  ")
+                .append("\u001b[36m").append(formatSize(transferred)).append("\u001b[0m")
+                .append("/")
+                .append(formatSize(total))
+                .append("\u001b[32m").append(rate == null ? "" : rate).append("\u001b[0m");
         System.out.print("\r" + bar);
 
         return true;
@@ -101,10 +102,10 @@ public class ConsoleProgressMonitor implements SftpProgressMonitor {
         BigDecimal _count = BigDecimal.valueOf(count);
         if (_count.compareTo(BigDecimal.valueOf(1024 * 1024)) < 0) {
             _count = _count.divide(BigDecimal.valueOf(1024), 2, RoundingMode.HALF_UP);
-            return _count + " KB";
+            return _count + "KB";
         } else {
             _count = _count.divide(BigDecimal.valueOf(1024 * 1024), 2, RoundingMode.HALF_UP);
-            return _count + " MB";
+            return _count + "MB";
         }
     }
 }

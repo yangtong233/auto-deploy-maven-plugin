@@ -31,7 +31,7 @@ public class AutoDeployMojoTest {
 
         ServerConnection server = new ServerConnection(host, port, user, password, log);
 
-        String[] beforeCommands = new String[]{"cd 12", "/home/httech/sso/customer-run.sh restart"};
+        String[] beforeCommands = new String[]{"cd /home"};
         String[] afterCommands = new String[]{"ls -l", "ps -ef|grep redis"};
 
         server.doConnect(

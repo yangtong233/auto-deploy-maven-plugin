@@ -3,6 +3,7 @@ package org.az;
 import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.SftpException;
+import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Build;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.logging.Log;
@@ -12,6 +13,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 
 import java.io.File;
+import java.util.List;
 
 /**
  * created by yangtong on 2024/6/15 11:30:39
@@ -24,8 +26,18 @@ public class AutoDeployMojo extends AbstractMojo {
      */
     private final static String SEPARATOR = ";";
 
+    /**
+     * 对应maven项目的pom.xml文件
+     */
     @Parameter(defaultValue = "${project}")
     private MavenProject project;
+
+    /**
+     * 用于获取mvn原始命令
+     */
+    @Parameter(defaultValue = "${session}", readonly = true)
+    private MavenSession session;
+
     /**
      * 服务器地址
      */
@@ -66,6 +78,12 @@ public class AutoDeployMojo extends AbstractMojo {
 
     @Override
     public void execute() {
+        //只有在auto-deploy环境下打包，才能使用该插件
+        List<String> activeProfiles = session.getRequest().getActiveProfiles();
+        if (!activeProfiles.contains("auto-deploy")) {
+            return;
+        }
+
         //日志
         Log log = getLog();
         //本地程序包
@@ -144,10 +162,15 @@ public class AutoDeployMojo extends AbstractMojo {
                     //可能commands是以分号分隔的多个命令，需要把所有命令拆分出来依次执行
                     if (commands != null) {
                         for (String command : commands.split(SEPARATOR)) {
-                            if (new ExecCommand(session, "cd " + remotePath, command).doCommand() != 0) {
-                                throw new ExecFailException();
+                            if (command != null) {
+                                command = command.trim();
+                                int exitCode = new ExecCommand(session, "cd " + remotePath, command).doCommand();
+                                if (exitCode != 0) {
+                                    throw new ExecFailException();
+                                }
+                                System.out.println("命令结束状态码：" + exitCode);
+                                System.out.println();
                             }
-                            System.out.println();
                         }
                     }
                 }

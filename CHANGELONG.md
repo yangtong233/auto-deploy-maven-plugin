@@ -133,7 +133,8 @@ source /etc/environment; source /etc/profile; source ~/.bashrc; source ~/.profil
 
 ```xml
 <beforeCommands>
-	<command>ps -ef|grep redis;./run.sh stop;</command>
+	ps -ef|grep redis;
+	./run.sh stop;
 </beforeCommands>
 ```
 
@@ -144,5 +145,41 @@ source /etc/environment; source /etc/profile; source ~/.bashrc; source ~/.profil
 	<command>ps -ef|grep redis</command>
 	<command>./run.sh stop</command>
 </beforeCommands>
+```
+
+
+
+### 1.2
+
+增加如下功能：
+
+* 只有在特定环境下运行`mvn package`命令才能触发插件的自动部署行为
+
+之前一旦引入插件，package时就会自动触发自动部署行为，对于有些不希望自动部署的情况必须移除该插件才能正常package，这里对此进行了优化
+
+package时，只有当profiles包含了`auto-deploy`，才能触发插件行为，比如
+
+```shell
+# 有3个profiles，其中包含了auto-deploy，可以触发插件行为
+mvn package -P prod,dev,auto-deploy
+```
+
+对应工程的pom.xml如下
+
+```xml
+<profiles>
+    <profile>
+        <id>dev</id>
+        <activation>
+            <activeByDefault>true</activeByDefault>
+        </activation>
+    </profile>
+    <profile>
+        <id>auto-deploy</id>
+    </profile>
+    <profile>
+        <id>prod</id>
+    </profile>
+</profiles>
 ```
 
