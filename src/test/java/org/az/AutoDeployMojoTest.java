@@ -6,10 +6,6 @@ import com.jcraft.jsch.SftpException;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.plugin.logging.SystemStreamLog;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
-
 /**
  * created by yangtong on 2024/6/15 12:17:12
  */
@@ -17,9 +13,9 @@ public class AutoDeployMojoTest {
 
     private static final String host = "192.168.1.220";
     private static final Integer port = 22;
-    private static final String user = "root";
-    private static final String password = "Dev@62628816";
-    private static final String remotePath = "/home/test";
+    private static final String user = "httech";
+    private static final String password = "Dev62628816";
+    private static final String remotePath = "/home/httech";
 
     public static void main(String[] args) {
         Log log = new SystemStreamLog();
@@ -32,14 +28,14 @@ public class AutoDeployMojoTest {
         ServerConnection server = new ServerConnection(host, port, user, password, log);
 
         String[] beforeCommands = new String[]{"cd /home"};
-        String[] afterCommands = new String[]{"ls -l", "ps -ef|grep redis"};
+        String[] afterCommands = new String[]{"ls -l", "sudo ps -ef|grep redis"};
 
         server.doConnect(
                 //前置命令
                 session -> {
                     //执行命令
                     for (String command : beforeCommands) {
-                        if (new ExecCommand(session, "cd " + remotePath, command).doCommand() != 0) {
+                        if (new ExecCommand(session, "cd " + remotePath, command).doCommand(password) != 0) {
                             throw new ExecFailException();
                         }
                         System.out.println();
@@ -61,7 +57,7 @@ public class AutoDeployMojoTest {
                 //执行后置命令
                 session -> {
                     for (String command : afterCommands) {
-                        if (new ExecCommand(session, "cd " + remotePath, command).doCommand() != 0) {
+                        if (new ExecCommand(session, "cd " + remotePath, command).doCommand(password) != 0) {
                             throw new ExecFailException();
                         }
                         System.out.println();

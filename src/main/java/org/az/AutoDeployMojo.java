@@ -164,7 +164,7 @@ public class AutoDeployMojo extends AbstractMojo {
                         for (String command : commands.split(SEPARATOR)) {
                             if (command != null) {
                                 command = command.trim();
-                                int exitCode = new ExecCommand(session, "cd " + remotePath, command).doCommand();
+                                int exitCode = new ExecCommand(session, "cd " + remotePath, command).doCommand(password);
                                 if (exitCode != 0) {
                                     throw new ExecFailException();
                                 }

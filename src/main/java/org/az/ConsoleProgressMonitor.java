@@ -56,7 +56,7 @@ public class ConsoleProgressMonitor implements SftpProgressMonitor {
         StringBuilder bar = new StringBuilder("[");
         for (int i = 0; i < 50; i++) {
             //每上传2%打印一个"#"
-            if (i < progress / 2) {
+            if (i <= progress / 2) {
                 bar.append("\u001b[36m#\u001b[0m");
             }
             //未上传的部分打印"."
@@ -75,7 +75,7 @@ public class ConsoleProgressMonitor implements SftpProgressMonitor {
         }
 
         //覆盖之前的进度条，让进度条始终在一行显示
-        bar.append("]  ").append(progress).append("%  ")
+        bar.append("]  \u001b[36m").append(progress).append("%\u001b[0m  ")
                 .append("\u001b[36m").append(formatSize(transferred)).append("\u001b[0m")
                 .append("/")
                 .append(formatSize(total))

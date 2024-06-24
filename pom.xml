@@ -6,7 +6,7 @@
 
     <groupId>xyz.yangtong</groupId>
     <artifactId>auto-deploy-maven-plugin</artifactId>
-    <version>1.2</version>
+    <version>1.3</version>
     <packaging>maven-plugin</packaging>
     <description>项目自动上传至服务器并运行的maven插件</description>
     <url>https://github.com/yangtong233/auto-deploy-maven-plugin</url>
