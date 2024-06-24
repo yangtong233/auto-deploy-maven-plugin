@@ -75,7 +75,7 @@ public class ConsoleProgressMonitor implements SftpProgressMonitor {
         }
 
         //覆盖之前的进度条，让进度条始终在一行显示
-        bar.append("]  \u001b[36m").append(progress).append("%\u001b[0m  ")
+        bar.append("]  \u001b[36m").append(progress).append("\u001b[0m%  ")
                 .append("\u001b[36m").append(formatSize(transferred)).append("\u001b[0m")
                 .append("/")
                 .append(formatSize(total))

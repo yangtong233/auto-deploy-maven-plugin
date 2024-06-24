@@ -39,6 +39,12 @@ public class AutoDeployMojo extends AbstractMojo {
     private MavenSession session;
 
     /**
+     * 命令是否以sudo模式执行
+     */
+    @Parameter(defaultValue = "false")
+    private Boolean isSudo;
+
+    /**
      * 服务器地址
      */
     @Parameter(required = true)
@@ -83,7 +89,6 @@ public class AutoDeployMojo extends AbstractMojo {
         if (!activeProfiles.contains("auto-deploy")) {
             return;
         }
-
         //日志
         Log log = getLog();
         //本地程序包
@@ -94,7 +99,7 @@ public class AutoDeployMojo extends AbstractMojo {
         log.info("\u001b[36m将被上传到：\u001b[0m" + host + " -> " + remoteFile);
         //创建服务器连接
         ServerConnection server = new ServerConnection(host, port, user, password, log);
-        log.info("所有命令都将在\u001b[1m[" + remotePath + "]\u001b[0m目录下执行");
+        log.info("所有命令都将在\u001b[1m[" + remotePath + "]\u001b[0m目录下执行" + (user.equals("root") ? "" : ", 并且以sudo模式执行"));
         //执行具体操作
         server.doConnect(
                 //前置命令
@@ -164,11 +169,11 @@ public class AutoDeployMojo extends AbstractMojo {
                         for (String command : commands.split(SEPARATOR)) {
                             if (command != null) {
                                 command = command.trim();
-                                int exitCode = new ExecCommand(session, "cd " + remotePath, command).doCommand(password);
+                                int exitCode = new ExecCommand(session, "cd " + remotePath, command).doCommand(isSudo ? password : null);
+                                System.out.println("命令结束状态码：" + exitCode);
                                 if (exitCode != 0) {
                                     throw new ExecFailException();
                                 }
-                                System.out.println("命令结束状态码：" + exitCode);
                                 System.out.println();
                             }
                         }

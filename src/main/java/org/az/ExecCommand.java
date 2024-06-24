@@ -130,25 +130,28 @@ public class ExecCommand {
      * @return 最终执行的命令
      */
     private String getCommand(String sudo) {
+        boolean isSudo = false;
         StringBuilder finalCommand = new StringBuilder().append(INIT).append(SPLIT).append(firstCommand).append(SPLIT);
-        //如果sudo不为空,则说明是以sudo模式执行
+        //如果sudo为空，则以普通模式执行命令
         if (sudo == null) {
             finalCommand.append(command);
         }
-        //如果command以"sudo "开头，则说明也是以sudo模式执行
+        //如果command以"sudo "开头，则以sudo模式执行
         else if (command.startsWith("sudo ")) {
+            isSudo = true;
             finalCommand.append(SUDO).append(command.replace("sudo ", ""));
         }
-        //如果命令不包含"sudo "，或者sudo不为null，则说明还是需要以sudo模式执行
+        //进入这个分支，说明sudo不为空，并且command不以"sudo "开头，则以sudo模式执行
         else {
             //cd命令不能结合sudo使用
             if (!command.startsWith("cd ")) {
                 finalCommand.append(SUDO);
+                isSudo = true;
             }
             finalCommand.append(command);
         }
 
-        System.out.println("\u001b[32m执行命令：" + command + "\u001b[0m");
+        System.out.println("\u001b[32m执行命令" + (isSudo ? "(sudo模式)" : "") + "：" + command + "\u001b[0m");
         return finalCommand.toString();
     }
 

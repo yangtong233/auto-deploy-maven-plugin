@@ -26,8 +26,9 @@ public class AutoDeployMojoTest {
         log.info("将被上传到" + remoteFile);
 
         ServerConnection server = new ServerConnection(host, port, user, password, log);
+        log.info("所有命令都将在\u001b[1m[" + remotePath + "]\u001b[0m目录下执行" + (!user.equals("root") ? "" : ", 并且以sudo模式执行"));
 
-        String[] beforeCommands = new String[]{"cd /home"};
+        String[] beforeCommands = new String[]{"cd /home", "touch 223.md"};
         String[] afterCommands = new String[]{"ls -l", "sudo ps -ef|grep redis"};
 
         server.doConnect(
@@ -35,7 +36,7 @@ public class AutoDeployMojoTest {
                 session -> {
                     //执行命令
                     for (String command : beforeCommands) {
-                        if (new ExecCommand(session, "cd " + remotePath, command).doCommand(password) != 0) {
+                        if (new ExecCommand(session, "cd " + remotePath, command).doCommand() != 0) {
                             throw new ExecFailException();
                         }
                         System.out.println();
@@ -57,7 +58,7 @@ public class AutoDeployMojoTest {
                 //执行后置命令
                 session -> {
                     for (String command : afterCommands) {
-                        if (new ExecCommand(session, "cd " + remotePath, command).doCommand(password) != 0) {
+                        if (new ExecCommand(session, "cd " + remotePath, command).doCommand() != 0) {
                             throw new ExecFailException();
                         }
                         System.out.println();
