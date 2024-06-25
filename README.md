@@ -101,9 +101,27 @@
 
 ```xml
 <beforeCommands>
-	<command>ps -ef|grep redis;./run.sh stop</command>
+	ps -ef|grep redis;
+    ./run.sh stop;
 </beforeCommands>
 ```
+
+
+
+如果想要以sudo模式执行命令，则需要在`configuration`标签中将`isSudo`设为true
+
+```xml
+<configuration>
+    <!--登录账号不能是root，并且执行的命令不能是cd，否则sudo没意义-->
+    <user>az</user>
+    <password>az123</password>
+    <!--是否已sudo模式执行前置、后置命令，选填，默认false-->
+    <isSudo>true</isSudo>
+    <!--.....-->
+</configuration>
+```
+
+上面会将`az123`作为sudo命令的密码
 
 
 

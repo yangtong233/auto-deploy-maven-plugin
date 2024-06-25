@@ -183,3 +183,73 @@ mvn package -P prod,dev,auto-deploy
 </profiles>
 ```
 
+
+
+### 1.3
+
+对于某些服务器，不允许使用root账号登录，而是使用普通账号登录，然后使用`sudo`来执行命令
+
+增加如下功能
+
+* 可以选择前置命令和后置命令是否以`sudo`模式执行
+
+当满足下面3个条件时，会以sudo模式执行命令
+
+1. 登录账号不为root
+2. 当前执行的命令不是`cd`（因为cd命令不需要配合sudo）
+3. 命令以`sudo `开头，或者插件配置的`isSudo`标签设置为了true
+
+比如下面这个配置
+
+```xml
+<configuration>
+    <host>192.168.1.123</host>
+    <user>az</user>
+    <password>az123</password>
+    <remotePath>/home/az</remotePath>
+    <!--是否已sudo模式执行前置、后置命令，选填，默认false-->
+    <isSudo>true</isSudo>
+    <beforeCommands>
+        ps -ef|grep redis
+    </beforeCommands>
+    <afterCommands>
+        cd /home;
+        sudo /home/httech/sso/customer-run.sh restart
+    </afterCommands>
+</configuration>
+```
+
+
+
+如果插件进行了如上的配置，执行流程如下所示
+
+1. 先以sudo模式执行前置命令，并以`password`标签的值作为sudo密码
+
+   ```shell
+   #真正执行的linux命令如下，以"az123"作为命令的密码
+   sudo -S -p '' ps -ef|grep redis
+   ```
+
+   并且会打印：`执行命令(sudo模式)：ps -ef|grep redis`
+
+2. 上传package出来的程序包
+
+3. 最后以sudo模式执行后置命令
+
+   由于`cd`命令不需要配合sudo，所以当插件发现命令是`cd`，不会做额外处理
+
+   ```shell
+   #真正执行的linux命令如下
+   cd /home
+   ```
+
+   然后在执行下一个命令，发现下一个命令以`sudo `开头，所以会以sudo模式执行（就算isSudo设为false也会以sudo模式执行）
+
+   ```shell
+   #真正执行的linux命令如下，将"sudo "替换成了"sudo -S -p '' "
+   sudo -S -p '' /home/httech/sso/customer-run.sh restart
+   ```
+
+   
+
+   
