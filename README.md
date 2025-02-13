@@ -17,9 +17,9 @@
     <plugins>
         <!--引入插件坐标-->
         <plugin>
-            <groupId>org.az.yangtong</groupId>
+            <groupId>xyz.yangtong</groupId>
             <artifactId>auto-deploy-maven-plugin</artifactId>
-            <version>1.0</version>
+            <version>1.3</version>
         </plugin>
 	</plugins>
 </build>
